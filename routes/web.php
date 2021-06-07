@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', 'App\Http\Controllers\Controller@getWelcomeIndex')->name('welcome');
+Route::get('/', 'App\Http\Controllers\Controller@getWelcomeIndex')->middleware('confirmed')->name('welcome');
 Route::get('/checkuser', 'App\Http\Controllers\Controller@getCurrentUserDisplay')->name('getCurrentUserDisplay');
 Route::get('/upload', 'App\Http\Controllers\Controller@getUploadIndex')->middleware('auth')->name('getUploadIndex');
 Route::get('/user/{username}/{art}', 'App\Http\Controllers\Controller@getArtIndex')->middleware('auth')->name('getArtIndex');

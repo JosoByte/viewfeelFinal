@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Auth;
 
 class RedirectIfAuthenticated
 {
+    public function __construct()
+    {
+        $this->database = app('firebase.database');
+    }
     /**
      * Handle an incoming request.
      *
@@ -23,7 +27,7 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                return redirect('/');
+                dd(Auth::user());
             }
         }
 

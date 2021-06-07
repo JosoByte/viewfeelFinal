@@ -8,7 +8,9 @@
       <div class="">
         <div class="card" style="background-color:#20253d;color:white;">
           <div class="card-header" style="text-align:center;background-color:#20253d;color:white;"><h1> {{ __('Login') }}</h1></div>
-
+          <div style="margin-left:1em;">
+            {{ session()->get( 'uncomfirmed' ) }}
+          </div>
           <div class="card-body">
             <form method="POST" action="{{ route('login') }}">
               @csrf

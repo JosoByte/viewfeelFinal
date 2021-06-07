@@ -22,14 +22,18 @@ class Controller extends BaseController
     public function getWelcomeIndex(){
         return view('welcome', ["currentUsername"=> $this->getCurrentUserDisplay(), "username"=>$this->getCurrentUserDisplay()]);
     }
+    public function checkConfirmEmail(){
+
+    }
     public function confirmMail($user,$token){
         $referenceConfirm = $this->database->getReference('/users/'.$user);
         $snapshotConfirm = $referenceConfirm->getSnapshot()->getValue();
         if($snapshotConfirm["tokenEmail"]==$token){
             $referenceConfirm->update([
                 "confirmed"=>true,
-            ])
+            ]);
         }
+        return redirect()->route('login')->with(['uncomfirmed' => "¡Listo! Ya puedes entrar a tu cuenta."]);
     }
     public function sendEmail(){
         $to_name = "Belinda";
