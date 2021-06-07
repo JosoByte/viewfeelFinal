@@ -1,34 +1,76 @@
 @extends('layouts.master')
 
-@section('title', 'Page Title')
+@section('title', 'Página usuario')
 
 @section('content')
     <div style="background-color:#ff004c;margin-top:5em;padding:0.4em">
         <div style="background-color:#20253d;margin-left:3em;margin-right:3em;margin-top:2em;color:white;">
         <div style="background-color:#cf004c;height:0.5em;">
         </div>
-        <div>
-        @if ($username!='')
-            <p id="hiddenName" hidden>{{ $username }}</p> <!-- user info for navbar -->
-            <p id="hiddenNameCurrent" hidden>{{ $currentUsername}}</p> <!-- user info for navbar -->
-        @endif
-        <div style="padding-left:1.5em;">
-            <img src="{{$image}}" height="200px" width="200px" style="padding-top:1em;display:inline-block">
-            <div style="display:inline-block;vertical-align: top; margin-top:1em;">
-                <p style="font-size:1.6em;">Logros</p>
-                <p>placeholder logros</p>
+            <div id="userShow">
+            @if ($username!='')
+                <p id="hiddenName" hidden>{{ $username }}</p> <!-- user info for navbar -->
+                <p id="hiddenNameCurrent" hidden>{{ $currentUsername}}</p> <!-- user info for navbar -->
+            @endif
+            <div style="padding-left:1.5em;">
+                <img src="{{$image}}" height="200px" width="200px" style="padding-top:1em;display:inline-block">
+                <div style="display:inline-block;vertical-align: top; margin-top:1em;">
+                    <p style="font-size:1.6em;">Logros</p>
+                    <p>placeholder logros</p>
+                </div>
+            </div>
+            <img src="{{ url('./img/divPerfil.png')}}" style="margin-top:0.5em;">
+            <div style="margin-left:1.5em;">
+                <div>
+                    <h1 style="display:inline-block">{{$username}} - Artista de nivel {{$level}}</h1>
+                </div>
+                <h2>Biografía</h2>
+                <p>{{$bio}}</p>
+            </div>
+            @if (Auth::user()->displayName)
+                <button type="button" onclick="showEditDetails()" class="btn" style="background-color:#ff004c;border-radius:0px;color:white;font-size:1.3em;padding-right:2.3em;padding-left:2.2em;margin-left:1em;margin-bottom:1em;">Editar perfil</button><br>
+            @endif
+            </div>
+            
+            <div id="userEdit" hidden>
+            <div style="padding-left:1.5em;">
+            <form method="POST" action="{{ route('updateProfile') }}">
+                @csrf
+                <img id="currentImageProfile" src="{{$image}}" height="200px" width="200px" style="padding-top:1em;display:inline-block">
+                <input id="imageProfile" type="file" class="form-control @error('imageProfile') is-invalid @enderror" name="imageProfile" accept="image/*" value="{{ old('imageProfile') }}" style="background-color:#20253d;color:white;border-color: #ff004c;width:38.5vw;margin-top:1em;" autocomplete="imageProfile">
+                <br>
+                <textarea id="hidden64ImageProfile" name="hidden64ImageProfile" hidden>{{$image}}</textarea>
+                <label for="name" class="col-md-4 col-form-label text-md-right" ><h4>{{ __('Nombre de usuario') }}</h4></label>
+                <div class="col-md-6">
+                <input id="name" type="name" class="form-control @error('name') is-invalid @enderror" name="name" value="{{Auth::user()->displayName}}" required style="background-color:#20253d;color:white;border-color: #ff004c;width:38.5vw;" autocomplete="name">
+                <label for="bio" class="col-md-4 col-form-label text-md-right" ><h4>{{ __('Biografía') }}</h4></label>
+                <div class="col-md-6">
+                <textarea id="bio" type="bio" class="form-control @error('bio') is-invalid @enderror" name="bio" required style="background-color:#20253d;color:white;border-color: #ff004c;width:38.5vw;" autocomplete="bio">{{$bio}}</textarea>
+                    <button type="submit" class="btn" style="background-color:#ff004c;border-radius:0px;color:white;font-size:1.3em;padding-right:2.3em;padding-left:2.2em;margin-top:1em;">Confirmar</button>
+                    </from>
+                <br>
+                </div>
+                <p style="border-radius:0px;font-size:1.3em;margin-top:1em;">Si no te interesa ser parte de la web, puedes <a onclick="delAccountPopup()" href="#" style="">borrar tu cuenta</a>
+                <div id="delAccount" style="position:fixed;width:100%;height:100%;background-color:rgba(0, 0, 0,0.5);left:0;top:0;z-index:1;overflow:hidden;" hidden><!-- del account -->
+                    <div style="margin: 15vw 15vw  15vw 15vw ;background-color:#ff004c;">
+                        <div style="margin-left:1em;margin-top:1em;background-color:#20253d;margin-bottom:1em">
+                            <div style="margin-left:1em;text-align:center;margin-top:2em;margin-right:1em;">
+                                <p style="font-size:2vw"> ¿Seguro que quieres eliminar tu cuenta?</p>
+                                <p style="font-size:1.2vw"> Una vez aceptes, se llevará a cabo la eliminación de tu galería y comentarios.</p>
+                                <div style="display:inline-block;margin-bottom:1em;">
+                                    <a href="{{ route('delProfile') }}">
+                                        <button type="button" class="btn" style="background-color:#ff004c;border-radius:0px;color:white;font-size:1.3vw;padding-right:2.3vw;padding-left:2.2vw;margin-top:1vw;">Borrar cuenta</button>
+                                    </a>
+                                    <button type="button" onclick="cancelDel()" class="btn" style="background-color:#ff004c;border-radius:0px;color:white;font-size:1.3vw;padding-right:2.3vw;padding-left:2.2vw;margin-top:1vw;margin-left:1em;">No borrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <img src="{{ url('./img/divPerfil.png')}}" style="margin-top:0.5em;">
-        <div style="margin-left:1.5em;">
-            <div>
-                <h1 style="display:inline-block">{{$username}} - Artista de nivel {{$level}}</h1>
-            </div>
-            <h2>Biografía</h2>
-            <p>{{$bio}}</p>
-        </div>
-        </div>
-        </div>
+        </div>  
+        
         <div style="background-color:#ff004c;margin-top:0em;padding:0.4em">
             <div style="background-color:#20253d;margin-left:1em;margin-right:1em;margin-top:2em;color:white;">
                 <div style="background-color:#cf004c;height:0.5em;">
@@ -37,13 +79,15 @@
             <h3>Esta galería está vacía</h3>
             @endif
             <div style="justify-items:center;">
-                <div class="grid-container" style="padding-left:4em;">
+                <div class="grid-container" style="padding-left:2em;">
                     @for ($i = 0; $i < count($gallery); $i++)
                         <div class="grid-item" style="width:85%;">
+                        <a href="{{$username}}/{{$gallery[$i]['fileData']}}">
                         @if($gallery[$i]["type"]=="jpg" || $gallery[$i]["type"]=="gif" || $gallery[$i]["type"]=="png")
-                            <img src="{{asset('uploads/'.$gallery[$i]['fileData'])}}" width="25%">
+                            <img src="{{asset('uploads/'.$gallery[$i]['fileData'])}}" width="85%">
                             <p style="text-align:center;color:#c261ff;">{{$gallery[$i]['name']}}</p>
                         @endif
+                        </a>
                         @if($gallery[$i]["type"]=="wav" || $gallery[$i]["type"]=="mp3" || $gallery[$i]["type"]=="ogg")
                             <div class="container-audio" style="width:100%">
                                 <audio controls loop id="audioSource" src="{{asset($gallery[$i]['fileData'])}}">
@@ -143,16 +187,35 @@
         <div>
     </div>
     <script>
+    var uploadImageInput = document.getElementById('imageProfile');
+    uploadImageInput.addEventListener('change', () =>{
+        var reader = new FileReader();
+            reader.onload = function (e) {
+                currentImageProfile.src = e.target.result;
+                document.getElementById('hidden64ImageProfile').innerHTML=e.target.result;
+            }
+            reader.readAsDataURL(uploadImageInput.files[0]);
+    });
+    function cancelDel(){
+        document.getElementById("delAccount").hidden=true;
+    }
+    function delAccountPopup(){
+        document.getElementById("delAccount").hidden=false;
+    }
+    function showEditDetails(){
+        document.getElementById("userShow").hidden=true;
+        document.getElementById("userEdit").hidden=false;
+    }
     function showMusicBars(bars){
         alert(bars);
-        documennt.getElementById("musicBar"+bars).hidden=false;
+        document.getElementById("musicBar"+bars).hidden=false;
     }
     </script>
     <style>
 .grid-container {
  align-items: end;
   display: grid;
-  grid-template-columns:repeat(auto-fit , 380px);
+  grid-template-columns:repeat(auto-fit , 350px);
   padding-top: 40px;
 }
 .grid-item {

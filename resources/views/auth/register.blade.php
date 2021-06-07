@@ -1,5 +1,5 @@
 @extends('layouts.master')
-
+@section('title', 'Registrarse')
 @section('content')
 <div class="container" style="background-color:#ff004c;padding:2em;width:45em;">
 <div style="background-color:#cf004c;height:0.5em;">

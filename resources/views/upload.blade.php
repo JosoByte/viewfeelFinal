@@ -1,6 +1,6 @@
 @extends('layouts.master')
 
-@section('title', 'Page Title')
+@section('title', 'Subida de archivos')
 
 @section('content')
     <div style="background-color:#ff004c;margin-top:5em;padding:0.4em"> 
@@ -14,6 +14,8 @@
             @endif
             <h1>Subir archivos</h1>
             <p>Aquí puedes subir tu arte, ya sea arte visual o música</p>
+            <form method="POST" action="{{ route('uploadFile') }}">
+            @csrf
             <form method="POST" action="{{ route('uploadFile') }}">
             @csrf
             <div class="" style="margin-right:auto;margin-left:18%;width:50vw;">
@@ -39,7 +41,6 @@
                 <button type="submit" class="btn" style="background-color:#ff004c;color:white;">
                     {{ __('Subir') }}
                 </button>
-                </form>
             </div>
             <div id="musicUpload" class="row" hidden>
             <div class="column">
@@ -233,7 +234,7 @@
         </div>
         <div style="margin-left:2em;width:95%;margin-bottom:1em;">
             <h2>Título</h2>
-            <input id="nameFile2" onkeyup="updateName()" type="text" class="@error('name') is-invalid @enderror" name="nameFile" value="{{ old('name') }}" required autocomplete="nameFile" style="background-color:#20253d;color:white;border-color: #ff004c;width:100%;" autofocus><br>
+            <input id="nameFile2" onkeyup="updateName()" type="text" class="@error('name') is-invalid @enderror" name="nameFile2" value="{{ old('name') }}" autocomplete="nameFile2" style="background-color:#20253d;color:white;border-color: #ff004c;width:100%;" autofocus><br>
             <br>
             <button type="submit" class="btn" style="background-color:#ff004c;color:white;">
                 {{ __('Subir') }}

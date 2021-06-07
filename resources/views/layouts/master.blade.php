@@ -3,6 +3,7 @@
         <title>@yield('title')</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        
         <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
     <body style="font-family: Calibri;background-image: url('{{ url('./img/background.jpg')}}');background-attachment: fixed;background-size:cover">
@@ -53,5 +54,6 @@
             document.getElementById('profileLink').href="/user/"+document.getElementById('hiddenNameCurrent').innerHTML;
         </script>
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js"></script>
 </html>

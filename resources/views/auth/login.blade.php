@@ -1,5 +1,5 @@
 @extends('layouts.master')
-
+@section('title', 'Login')
 @section('content')
   <div class="container" style="background-color:#ff004c;padding:2em;width:45em;">
     <div style="background-color:#cf004c;height:0.5em;">
@@ -39,11 +39,9 @@
                         </span>
                       @enderror
                     </div>
-                    @if (Route::has('password.request'))
-                        <a class="btn btn-link" href="{{ route('password.request') }}">
-                          {{ __('¿Olvidaste tu contraseña?') }}
+                     <a class="btn btn-link" href="/password/reset" style="text-decoration: none;">
+                          Forgot Your Password?
                         </a>
-                      @endif
                       <div class="form-group row">
                     <div class="col-md-6 offset-md-4">
                       <div class="form-check">

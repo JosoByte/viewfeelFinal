@@ -1,6 +1,6 @@
 @extends('layouts.master')
 
-@section('title', 'Page Title')
+@section('title', 'Inicio')
 
 @section('content')
     <div style="background-color:#ff004c;margin-top:5em;padding:0.4em"> 
