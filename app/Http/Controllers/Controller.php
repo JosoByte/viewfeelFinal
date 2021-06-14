@@ -19,11 +19,57 @@ class Controller extends BaseController
     {
         $this->database = app('firebase.database');
     }
+    public function mapIndex(){
+        return view('map');
+    }
     public function getWelcomeIndex(){
-        return view('welcome', ["currentUsername"=> $this->getCurrentUserDisplay(), "username"=>$this->getCurrentUserDisplay()]);
+        $referenceUsers =  array_values($this->database->getReference('/users/')->getSnapshot()->getValue());
+        $usersWithGallery=[];
+        $mostLikes=[];
+        for($i=0;$i<count($referenceUsers);$i++){
+            if(array_key_exists("gallery",$referenceUsers[$i])){
+                array_push($usersWithGallery,$referenceUsers[$i]);
+            }
+        }
+        for($i=0;$i<count($usersWithGallery);$i++){
+            usort($usersWithGallery[$i]["gallery"], function($a, $b) {
+                return strcmp($b['likes'] , $a['likes']);
+            });
+        }
+        $photosMostLikes=[];
+        for($i=0;$i<count($usersWithGallery);$i++){
+            array_push($photosMostLikes,$usersWithGallery[$i]["gallery"][0]);
+        }
+        usort($photosMostLikes, function($a, $b) {
+            return strcmp($b['likes'] , $a['likes']);
+        });
+        $recentLikes= array_values($this->database->getReference('/recentLikes/')->getSnapshot()->getValue());
+        return view('welcome', ["currentUsername"=> $this->getCurrentUserDisplay(), "username"=>$this->getCurrentUserDisplay(),"mostLikes"=> $photosMostLikes,"recentLikes" => $recentLikes]);
     }
     public function checkConfirmEmail(){
 
+    }
+    public function searchIndex(Request $request){
+        $searchText=$request->search;
+        $referenceUsers =  array_values($this->database->getReference('/users/')->getSnapshot()->getValue());
+        $searchResult=[];
+        for($i=0;$i<count($referenceUsers);$i++){
+            if(array_key_exists("gallery",$referenceUsers[$i])){
+                for($j=0;$j<count($referenceUsers[$i]["gallery"]);$j++){
+                    if(stripos($referenceUsers[$i]["gallery"][$j]["name"],$searchText) || str_contains($referenceUsers[$i]["username"],$searchText)) {
+                        $username=$referenceUsers[$i]["username"];
+                        $filename=$referenceUsers[$i]["gallery"][$j]["fileData"];
+                        $searchResult[$j]["link"]='/'.$username.'/'.$filename;
+                        $searchResult[$j]["fileName"]=$filename;
+                        $searchResult[$j]["username"]=$username;
+                        $searchResult[$j]["bio"]=$referenceUsers[$i]["bio"];
+                        $searchResult[$j]["likes"]=$referenceUsers[$i]["gallery"][$j]["likes"];
+                        $searchResult[$j]["name"]=$referenceUsers[$i]["gallery"][$j]["name"];
+                    }
+                }
+            }
+        }
+        return view('search', ["currentUsername"=> $this->getCurrentUserDisplay(), "username"=>$this->getCurrentUserDisplay(), "searchResult" => $searchResult]);
     }
     public function confirmMail($user,$token){
         $referenceConfirm = $this->database->getReference('/users/'.$user);
@@ -67,6 +113,9 @@ class Controller extends BaseController
             ]);
         }
     }
+    public function testLine(){
+        dd($this->database->getReference('/recentLikes')->getSnapshot()->getValue());
+    }
     public function updateLikes($username,$artIndex){
         $referenceUser = $this->database->getReference('/users/'.$username."/gallery/".$artIndex);
         $snapshotArt = $referenceUser->getSnapshot()->getValue();
@@ -82,6 +131,47 @@ class Controller extends BaseController
             ->update([
                 "likes" => $snapshotLikes+1,
             ]);
+            $referenceMostLikes = $this->database->getReference('/recentLikes')->getSnapshot()->getValue();
+            $hasArtOnLikes=false;
+            if($referenceMostLikes!=""){
+                for($i=0;$i<count($referenceMostLikes);$i++){
+                    if($referenceMostLikes[$i]["fileName"]==$snapshotArt["fileData"]){
+                        $hasArtOnLikes=true;
+                    }
+                }
+            }
+            if($hasArtOnLikes==false){
+                if($referenceMostLikes==""){
+                    $referenceMostLikes = $this->database->getReference('/recentLikes/0')->set([
+                        "fileName" => $snapshotArt["fileData"],
+                        "name" => $snapshotArt["name"],
+                        "likes" => $snapshotArt["likes"],
+                        "link" => $username."/".$snapshotArt["fileData"],
+                    ]);
+                }else{
+                    if(count($referenceMostLikes)<5){
+                        $referenceMostLikes = $this->database->getReference('/recentLikes/'.count($referenceMostLikes))->set([
+                            "fileName" => $snapshotArt["fileData"],
+                            "name" => $snapshotArt["name"],
+                            "likes" => $snapshotArt["likes"],
+                            "link" => $username."/".$snapshotArt["fileData"],
+                        ]);
+                    }elseif(count($referenceMostLikes)==5){
+                        $referenceMostLikes = $this->database->getReference('/recentLikes/')->getSnapshot()->getValue();
+                        $referenceMostLikes=array_pop($referenceMostLikes);
+                        $arrayToInsert= array(
+                            "fileName" => $snapshotArt["fileData"],
+                            "name" => $snapshotArt["name"],
+                            "likes" => $snapshotArt["likes"],
+                            "link" => $username."/".$snapshotArt["fileData"],
+                        );
+                        array_unshift($referenceMostLikes,$arrayToInsert);
+                        $referenceMostLikesInsert= $this->database->getReference('/recentLikes/')->set([
+                            $referenceMostLikes,
+                        ]);
+                    }
+                }
+            }
         }else{
             if (in_array($snapshotArt["fileData"], $snapshotLikes)!=true){
                 array_push($snapshotLikes, $snapshotArt["fileData"]);
@@ -94,6 +184,50 @@ class Controller extends BaseController
                 ->update([
                     "likes" => $snapshotLikes+1,
                 ]);
+                $referenceMostLikes = $this->database->getReference('/recentLikes')->getSnapshot()->getValue();
+                $hasArtOnLikes=false;
+                if($referenceMostLikes!=""){
+                    for($i=0;$i<count($referenceMostLikes);$i++){
+                        if($referenceMostLikes[$i]["fileName"]==$snapshotArt["fileData"]){
+                            $hasArtOnLikes=true;
+                        }
+                    }
+                }
+                if($hasArtOnLikes==false){
+                    if($referenceMostLikes==""){
+                        $referenceMostLikes = $this->database->getReference('/recentLikes/0')->set([
+                            "fileName" => $snapshotArt["fileData"],
+                            "name" => $snapshotArt["name"],
+                            "likes" => $snapshotArt["likes"],
+                            "link" => $username."/".$snapshotArt["fileData"],
+                        ]);
+                    }elseif(count($referenceMostLikes)<5){
+                        $referenceMostLikes = $this->database->getReference('/recentLikes/'.count($referenceMostLikes))->set([
+                            "fileName" => $snapshotArt["fileData"],
+                            "name" => $snapshotArt["name"],
+                            "likes" => $snapshotArt["likes"],
+                            "link" => $username."/".$snapshotArt["fileData"],
+                        ]);
+                    }elseif(count($referenceMostLikes)==5){
+                        $referenceMostLikes = $this->database->getReference('/recentLikes/')->getSnapshot()->getValue();
+                        array_pop($referenceMostLikes);
+                        $arrayToInsert= array(
+                            "fileName" => $snapshotArt["fileData"],
+                            "name" => $snapshotArt["name"],
+                            "likes" => $snapshotArt["likes"],
+                            "link" => $username."/".$snapshotArt["fileData"],
+                        );
+                        array_unshift($referenceMostLikes,$arrayToInsert);
+                        for($i=0;$i<count($referenceMostLikes);$i++){
+                            $referenceMostLikesInsert= $this->database->getReference('/recentLikes/'.$i)->set([
+                                "fileName" => $referenceMostLikes[$i]["fileName"],
+                                "name" => $referenceMostLikes[$i]["name"],
+                                "likes" => $referenceMostLikes[$i]["likes"],
+                                "link" => $referenceMostLikes[$i]["link"],
+                            ]);
+                        }
+                    }
+                }
             }
         }
     }

@@ -1,114 +1,131 @@
 @extends('layouts.master')
 
+@section('title', 'Subida de archivos')
 
 @section('content')
-@section('title', 'Página arte')
-    <div style="background-color:#ff004c;margin-top:5em;padding:0.4em" onload="setTitle('{{$creatorUsername}} - {{$nameArt}}')">
-        <div style="background-color:#20253d;margin-left:3em;margin-right:3em;margin-top:2em;color:white;">
+    <div style="background-color:#ff004c;margin-top:5em;padding:0.4em"> 
+        <div style="background-color:#20253d;margin:0.5em;color:white;">
         <div style="background-color:#cf004c;height:0.5em;">
         </div>
-        @if ($username!='')
-                <p id="hiddenName" hidden>{{ $username }}</p> <!-- user info for navbar -->
-                <p id="hiddenNameCurrent" hidden>{{ $currentUsername}}</p> <!-- user info for navbar -->
-            @endif
-        <div style="margin-left:1em;margin-top:1em;color:#c261ff">
-            <div style="margin: auto;width: 60%;height:50%;">
-                <img src="{{asset('uploads/'.$filename)}}" width="100%" height="100%"style="">
-            </div>
-        </div>
-        <div style="margin-left:1em;margin-top:1em;">
-            <img src="{{$creatorImg}}" width="200vw" style="display:inline-block;">
-            <div style="display:inline-block;vertical-align:middle;margin-left:1em;">
-                <h2 style="color:#c261ff">{{$nameArt}}</h2>
-                <h5>{{$creatorUsername}}</h5>
-                <b>Nivel {{$creatorLevel}}</b>
-            </div>
-            <div style="display:inline-block;float:right;margin-top:5em;margin-right:1em;">
-                <button class="btn btn-danger" onclick="updateLikes({{$likes}},'{{$creatorUsername}}',{{$artIndex}})"><i class="fa fa-heart" aria-hidden="true"></i> Me gusta</button>
-                <p id="likesCount">Me gusta: {{$likes}}</p>
-            </div>
-        </div>
-        <hr>
-        <div style="margin-left:1em;">
-            <h1>Deja un comentario</h1>
-            <textarea id="commentText" style="background-color:#20253d;color:white;border-color: #ff004c;width:38.5vw;"></textarea><br>
-            <button class="btn" onclick="sendComment('{{$currentUsername}}','{{$creatorUsername}}',{{$artIndex}})" style="background-color:#ff004c;border-radius:0px;color:white;font-size:1.3em;padding-right:2.3em;padding-left:2.2em;margin-top:1em;">Enviar</button>
-        </div>
-        <hr>
-        <div style="margin-left:1em;">
-        @if ($comments=='')
-            Parece que nadie a comentado todavía... ¡Se el primero en hacerlo!
-        @else
-            @for($i=0;$i<count($comments);$i++)
-                <a class="comment" href="/user/{{$comments[$i]['commenterUser']}}">
-                    <div class="comment" style="margin-bottom:2em;">
-                        <img src="{{$comments[$i]["img"]}}" width="120vh" style="display:inline-block">
-                        <div style="display:inline-block;margin-left:1em;"><b style="color:#c261ff">{{$comments[$i]["commenterUser"]}}</b><br>{{$comments[$i]["text"]}}</div>
+        <div style="margin-left:2em;padding-bottom:2em;">
+            <h1>Resultados de la busqueda</h1>
+            <!-- search results -->
+            @if (!empty($searchResult))
+                 @for($i=0;$i<count($searchResult);$i++)
+                 <a href="/user/.{{$searchResult[$i]['link']}}" style="color: inherit;">
+                    <div class="resultBox">
+                        <div style="display:inline-block;">
+                            <img src="{{asset('uploads/'.$searchResult[$i]['fileName'])}}" width="100vw">
+                        </div>
+                        <div style="display:inline-block;vertical-align:top;margin-left:1em;">
+                            <h3 style="color:#c261ff;display:inline-block;">{{$searchResult[$i]["name"]}}</h3> <e style="display:inline-block;"> - por {{$searchResult[$i]["username"]}}</e>
+                            <br><i class="fa fa-heart" aria-hidden="true" style="color:#ff004c;"> {{$searchResult[$i]["likes"]}}</i>
+                            <p>{{$searchResult[$i]["bio"]}}</p>
+                        </div>
                     </div>
-                </a>
-            @endfor
-        @endif
-            <br>
+                @endfor
+            @else
+                <p>La busqueda no ha arrojado ningún resultado</p>
+            @endif
+        </div>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.js"></script>
-    <script>
-    function setTitle(title){
-        document.title=title;
-    }
-    function sendComment(commenter,username,artIndex){
-        commentText=document.getElementById("commentText").value
-        axios.post("/sendComment",{commenter:commenter, username:username, artIndex:artIndex, commentText:commentText}).then(() => {
-            location.reload();
-        });
-    }
-    function updateLikes(likes,username,artIndex){
-        document.getElementById("likesCount").innerHTML="Me gusta: "+(likes+1);
-        axios.post("/updateLikes/"+username+"/"+artIndex)
-    }
-    var uploadImageInput = document.getElementById('imageProfile');
-    uploadImageInput.addEventListener('change', () =>{
-        var reader = new FileReader();
-            reader.onload = function (e) {
-                currentImageProfile.src = e.target.result;
-                document.getElementById('hidden64ImageProfile').innerHTML=e.target.result;
+    <script>    
+    var uploadFileInput = document.getElementById('fileUpload');
+    var nameFile = document.getElementById('nameFile');
+        function updateName(){
+            document.getElementById("fileTitle2").innerHTML=nameFile.value;
+        };
+        function updateNameImage(){
+            document.getElementById("imageTitle").innerHTML=nameFile.value;
+        };
+        uploadFileInput.addEventListener('change', () =>{
+            var reader = new FileReader();
+            if(isImage(uploadFileInput.files[0].name)){
+                reader.onload = function (e) {
+                document.getElementById('hidden64file').innerHTML=e.target.result;
+                document.getElementById('imageUpload').hidden=false;
+                document.getElementById('imagePreview').src=e.target.result;
+                document.getElementById('imagePreview2').src=e.target.result;
+                }
+            reader.readAsDataURL(uploadFileInput.files[0]);
             }
-            reader.readAsDataURL(uploadImageInput.files[0]);
-    });
-    function cancelDel(){
-        document.getElementById("delAccount").hidden=true;
-    }
-    function delAccountPopup(){
-        document.getElementById("delAccount").hidden=false;
-    }
-    function showEditDetails(){
-        document.getElementById("userShow").hidden=true;
-        document.getElementById("userEdit").hidden=false;
-    }
-    function showMusicBars(bars){
-        alert(bars);
-        document.getElementById("musicBar"+bars).hidden=false;
-    }
+            if(isAudio(uploadFileInput.files[0].name)){
+                reader.onload = function (e) {
+                document.getElementById('hidden64file').innerHTML=e.target.result;
+                document.getElementById('musicUpload').hidden=false;
+                document.getElementById('audioSource').src=e.target.result;
+                document.getElementById('audioSource2').src=e.target.result;
+                }
+            reader.readAsDataURL(uploadFileInput.files[0]);
+            }
+        });
+        function getExtension(filename) {
+            var parts = filename.split('.');
+            return parts[parts.length - 1];
+        }
+        function isImage(filename) {
+            var ext = getExtension(filename);
+            switch (ext.toLowerCase()) {
+                case 'jpg':
+                case 'gif':
+                case 'bmp':
+                case 'png':
+                //etc
+                return true;
+            }
+            return false;
+            }
+        function isAudio(filename) {
+            var ext = getExtension(filename);
+            switch (ext.toLowerCase()) {
+                case 'wav':
+                case 'mp3':
+                case 'ogg':
+                // etc
+                return true;
+            }
+            return false;
+            }
+
     </script>
+    </div>
     <style>
-.grid-container {
- align-items: end;
-  display: grid;
-  grid-template-columns:repeat(auto-fit , 350px);
-  padding-top: 40px;
+    .resultBox{
+        background-color:#20253d;
+        width:90%;
+    }
+    .resultBox:hover{
+        background-color: #00253d;
+    }
+    .column {
+  width: 50%;
+  padding: 10px;
+  float: left;
+
 }
-.grid-item {
-  font-size: 30px;
-  text-align: center;
+* {
+  box-sizing: border-box;
 }
-.comment {
-    color:inherit;
-    background-color: #20253d;
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+  float: right;
 }
-.comment:hover {
-  background-color: #00253d;
-  color:inherit;
-}
+        .dropzone {
+            background: #20253d;
+            max-width: 850px;
+            width: 100%;
+            margin-left: 0%;
+            margin-right: 0%;
+            padding-top:6%;
+            padding-left:10%;
+            border: 7px dashed #ff004c;
+            margin-top: 10px;
+        }
+        /* Start  styling the page */
 .container-audio {
     width: 100%;
     border-radius: 5px;
@@ -368,5 +385,6 @@ audio:nth-child(2), audio:nth-child(4), audio:nth-child(6) {
         background-color: cornflowerblue;
     }
 }
+
     </style>
 @stop

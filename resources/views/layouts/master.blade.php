@@ -30,9 +30,15 @@
                 <a class="nav-link" href="/upload" style="display:inline-block;text-decoration: none;color:white;margin-left:1em;font-size:1.5em">Subir arte</a>
                 </li>
                 @endauth
-                </ul>
-                <i class="fa fa-search" aria-hidden="true" style="color:#ff004c;margin-right:1em;"> </i> 
-                <input type="text" class="" placeholder="Buscar..." aria-label="" aria-describedby="basic-addon1" style="border-color: #ff004c;color:white;background-color:#20253d;border-radius: 3px;width:25vw;">
+                </ul>&nbsp;
+                <form method="POST" action="{{ route('search') }}">
+                @csrf
+                    <i class="fa fa-search" aria-hidden="true" style="color:#ff004c;"> </i> &nbsp;
+                    <input type="text" name="search" class="" placeholder="Buscar..." aria-label="" aria-describedby="basic-addon1" style="border-color: #ff004c;color:white;background-color:#20253d;border-radius: 3px;width:25vw;margin-top:1em;">
+                    &nbsp;&nbsp;<button type="submit" class="btn" style="background-color:#ff004c;color:white;">
+                    {{ __('Buscar') }}
+                    </button>
+                </form>
                 @auth
                     <div style="margin-left:2em;">
                         <h5 id="loginName"></h5>

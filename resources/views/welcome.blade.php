@@ -26,12 +26,30 @@
         @endif
         <i class="fa fa-search" aria-hidden="true" style="color:#ff004c;margin-right:0.5em;margin-top:1em;"> </i> 
         <input type="text" class="" placeholder="¡Busca arte!" aria-label="" aria-describedby="basic-addon1" style="border-color: #ff004c;color:white;background-color:#20253d;border-radius: 3px;width:15em;">
-        <h5>Me gusta recientes:</h5>
-        <p>Placeholder me gusta recientes</p>
-        <h5>Compartidos:</h5>
-        <p>Placeholder compartidos</p>
-        <h5>Mas me gusta:</h5>
-        <p>Placeholder mas me gusta</p>
+        <h5 style="text-align:center;">Me gusta recientes</h5>
+        <div style="display: flex;justify-content: center;flex-wrap: wrap;margin-left:2em;;">
+            @for($i=0;$i<5;$i++)
+                <div style="display:inline-block;margin-right:1em;text-align:center;">
+                    <div style="width: 10em;height: 10em;overflow:hidden;">
+                        <img src="{{asset('uploads/'.$mostLikes[$i]['fileData'])}}" style="display:block;position:relative;left: 50%;transform: translate(-50%);">
+                    </div>
+                    <br><i class="fa fa-heart" aria-hidden="true" style="color:#ff004c;margin-top:0.5em;"> {{$recentLikes[$i]["likes"]}}</i>
+                    <h5 style="color:#c261ff">{{$recentLikes[$i]["name"]}}</h5>
+                </div>
+            @endfor
+        </div>
+        <h5 style="text-align:center;">Mas me gusta</h5>
+        <div style="display: flex;justify-content: center;flex-wrap: wrap;margin-left:2em;;">
+            @for($i=0;$i<5;$i++)
+                <div style="display:inline-block;margin-right:1em;text-align:center;">
+                    <div style="width: 10em;height: 10em;overflow:hidden;">
+                        <img src="{{asset('uploads/'.$mostLikes[$i]['fileData'])}}" style="display:block;position:relative;left: 50%;transform: translate(-50%);">
+                    </div>
+                    <br><i class="fa fa-heart" aria-hidden="true" style="color:#ff004c;margin-top:0.5em;"> {{$mostLikes[$i]["likes"]}}</i>
+                    <h5 style="color:#c261ff">{{$mostLikes[$i]["name"]}}</h5>
+                </div>
+            @endfor
+        </div>
         </div>
         </div>
         

@@ -24,6 +24,9 @@ Route::get('/logoff', function () {
     return redirect('/');
 })->name('logoff');
 Auth::routes();
+Route::get('/testLine', 'App\Http\Controllers\Controller@testLine');
+Route::get('/map', 'App\Http\Controllers\Controller@mapIndex')->name('map');
+Route::post('/search', 'App\Http\Controllers\Controller@searchIndex')->name('search');
 Route::get('/testMail', 'App\Http\Controllers\Controller@sendEmail');
 Route::get('/confirmMail/{user}/{token}', 'App\Http\Controllers\Controller@confirmEmail');
 Route::resource('/password/reset', App\Http\Controllers\Auth\PasswordResetController::class);
