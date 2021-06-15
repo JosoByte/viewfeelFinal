@@ -10,6 +10,7 @@ use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 
 class Controller extends BaseController
@@ -153,6 +154,30 @@ class Controller extends BaseController
     public function chatIndex(){
         return view("chat");
     }
+    public function sendMessage(Request $request){
+        $referenceMessages =  $this->database->getReference('/chat/messages')->getSnapshot()->getValue();
+        if($referenceMessages==""){
+            $referenceNewMessage =  $this->database->getReference('/chat/messages/0')->set([
+                "message" => $request->message,
+                "time" => Carbon::now()->format('g:ia'),
+                "username" => $this->getCurrentUserDisplay(),
+            ]);
+            return [$request->message,Carbon::now()->format('g:ia'),$this->getCurrentUserDisplay()];
+        }
+        else{
+            $referenceMessages =  $this->database->getReference('/chat/messages')->getSnapshot()->getValue();
+            $referenceNewMessage =  $this->database->getReference('/chat/messages/'.count($referenceMessages))->set([
+                "message" => $request->message,
+                "time" => Carbon::now()->format('g:ia'),
+                "username" => $this->getCurrentUserDisplay(),
+            ]);
+            return [$request->message,Carbon::now()->format('g:ia'),$this->getCurrentUserDisplay()];
+        }
+    }
+    public function checkMessage(){
+        $referenceMessages=$this->database->getReference('/chat/messages')->getSnapshot()->getValue();
+        return $referenceMessages;
+    }
     public function contactEmail(Request $request){
         $to= explode("@", $request->email, 2);
         $to_name = $to[0];
@@ -225,7 +250,7 @@ class Controller extends BaseController
         }
     }
     public function testLine(){
-        dd($this->database->getReference('/recentLikes')->getSnapshot()->getValue());
+        dd(Carbon::now()->format('g:ia'));
     }
     public function removeLike($username, $artIndex){
         $referenceUser = $this->database->getReference('/users/'.$username."/gallery/".$artIndex);

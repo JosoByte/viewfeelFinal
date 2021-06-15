@@ -58,7 +58,7 @@
                                 <button type="button" id="chatButtonClose"  href="#" onclick="hideChat()" class="btn" style="background-color:#20253d;border-radius:0px;color:white;font-size:0.9em;padding-right:1.5em;padding-left:1.5em;padding-top:0;height:1.5em;">X</button><br>
                             </div>
                                 <div id="chatFrameI"  style="margin-right:10%;margin-bottom:1vh;">
-                                    <iframe src="/chat"  height="400em" width="300vw" title="description"></iframe>
+                                    <iframe id="chatIframe" src="/chat"  height="400em" width="300vw" title="description"></iframe>
                                 </div>
                                 <input type="text" id="chatTextInput" name="chatTextInput" class="" placeholder="Escribe..." aria-label="" aria-describedby="basic-addon1" style="border-color: #ff004c;color:white;background-color:#20253d;border-radius: 3px;width:100%;margin-top:1em;">
                             </div>
@@ -76,7 +76,63 @@
             @yield('content')
         </div>
     </body>
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js"></script>
     <script>
+    var chatInput = document.getElementById("chatTextInput");
+    setInterval(function(){ document.getElementById("chatIframe").contentWindow.checkMessage(); }, 1500);
+    function checkMessage(){
+        axios.get("/checkMessage").then(function(response) {
+
+        });
+    }
+    var currentUser="";
+    axios.get("/checkuser").then(function(response) {
+        currentUser=response.data;
+    });
+    chatInput.addEventListener("keyup", function(event) {
+        if (event.keyCode === 13) {
+            var message=chatInput.value;
+            chatInput.value="";
+            var messages=document.getElementById("chatIframe").contentWindow.document.getElementById("messages");
+            console.log(messages);
+
+            var div=document.createElement("div");
+            div.style= "display:flex;justify-content:right;flex-flow: wrap;border-style: dashed solid dashed dashed;border-color: #ff004c;border-radius: 10px 0px 10px 10px;padding-right:0.5em;margin-bottom:1em;";
+            var p=document.createElement("p");
+            p.innerHTML=currentUser;
+            p.style="width: 100%;text-align:right;margin:1;color:#c261ff;";
+            div.append(p);
+            var p=document.createElement("p");
+            p.innerHTML=message;
+            p.style="width: 100%;text-align:right;margin:1;color:white;";
+            div.append(p);
+            var p=document.createElement("p");
+            p.innerHTML=formatAMPM(new Date);
+            p.style="width: 100%;text-align:right;margin:1;color:white;";
+            div.append(p);
+            messages.append(div);
+            var br=document.createElement("br");
+            div.append(br);
+            document.getElementById("chatIframe").contentWindow.scrollDown();
+            axios.post("/sendMessage",{message:message}).then(function(response) {
+
+            });
+            checkMessage();
+        }
+    });
+    function formatAMPM(date) {
+        var hours = date.getHours();
+        var minutes = date.getMinutes();
+        var ampm = hours >= 12 ? 'pm' : 'am';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        minutes = minutes < 10 ? '0'+minutes : minutes;
+        var strTime = hours + ':' + minutes + ' ' + ampm;
+        return strTime;
+        }
+
         function hideChat(){
             document.getElementById('chatFrame').hidden=true;
             document.getElementById('chatButton').hidden=false;
@@ -88,7 +144,4 @@
             document.getElementById('loginName').innerHTML="Eres "+document.getElementById('hiddenNameCurrent').innerHTML;
             document.getElementById('profileLink').href="/user/"+document.getElementById('hiddenNameCurrent').innerHTML;
         </script>
-    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js"></script>
 </html>

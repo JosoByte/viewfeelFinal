@@ -27,6 +27,8 @@ Route::get('/logoff', function () {
 })->name('logoff');
 Auth::routes();
 Route::get('/checkIfLike', 'App\Http\Controllers\Controller@checkIfLike');
+Route::post('/sendMessage', 'App\Http\Controllers\Controller@sendMessage');
+Route::get('/checkMessage', 'App\Http\Controllers\Controller@checkMessage');
 Route::post('/contactEmail', 'App\Http\Controllers\Controller@contactEmail')->name("contactEmail");
 Route::get('/checkRate', 'App\Http\Controllers\Controller@checkRate');
 Route::post('/rate',  'App\Http\Controllers\Controller@rate');
