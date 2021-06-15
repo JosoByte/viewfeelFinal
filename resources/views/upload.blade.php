@@ -234,7 +234,7 @@
         </div>
         <div style="margin-left:2em;width:95%;margin-bottom:1em;">
             <h2>Título</h2>
-            <input id="nameFile2" onkeyup="updateName()" type="text" class="@error('name') is-invalid @enderror" name="nameFile2" value="{{ old('name') }}" autocomplete="nameFile2" style="background-color:#20253d;color:white;border-color: #ff004c;width:100%;" autofocus><br>
+            <input id="nameFile2" onkeyup="updateName()" type="text" class="@error('name') is-invalid @enderror" name="nameFile2" value="{{ old('name') }}" autocomplete="nameFile2"  style="background-color:#20253d;color:white;border-color: #ff004c;width:93%;" autofocus><br>
             <br>
             <button type="submit" class="btn" style="background-color:#ff004c;color:white;">
                 {{ __('Subir') }}
