@@ -7,30 +7,135 @@
         <div style="background-color:#20253d;margin:0.5em;color:white;">
         <div style="background-color:#cf004c;height:0.5em;">
         </div>
-        <div style="margin-left:2em;padding-bottom:2em;">
-            <h1>Resultados de la busqueda</h1>
-            <!-- search results -->
-            @if (!empty($searchResult))
-                 @for($i=0;$i<count($searchResult);$i++)
-                 <a href="/user/.{{$searchResult[$i]['link']}}" style="color: inherit;">
-                    <div class="resultBox">
-                        <div style="display:inline-block;">
-                            <img src="{{asset('uploads/'.$searchResult[$i]['fileName'])}}" width="100vw">
+        <div style="margin-left:2em;padding-bottom:2em;margin-right:1em;">
+            <h1>Mapa</h1>
+            <div style="">
+                <div style="">
+                    <div id="mapid" style="width:97%;height:35em;margin-right:5em;" ></div>
+                        <br>
+                        <button id="crearPinButton" class="btn" style="background-color:#ff004c;color:white;" onclick="createPin()">
+                                {{ __('Crear pin') }}
+                        </button>
+                        <div id="crearPin" hidden>
+                            <h5>Crear pin</h5>
+                            <form method="POST" action="{{ route('uploadPin') }}">
+                            @csrf
+                            <div style="display:inline-block">
+                                <label for="fname">Latitud:</label>
+                                <input type="text" id="latitud" name="latitud" style="border-color: #ff004c;color:white;background-color:#20253d;border-radius: 3px;width:100%;margin-top:1em;"><br><br>
+                            </div>
+                            <div style="display:inline-block">
+                                <label for="fname">Longitud:</label>
+                                <input type="text" id="longitud" name="longitud" style="border-color: #ff004c;color:white;background-color:#20253d;border-radius: 3px;width:100%;margin-top:1em;"><br><br>
+                            </div>
+                            <div class="" style="margin-right:auto;">
+                                <p>Arrastra tu archivo aquí o pulsa para subir</p>
+                                <input class="dropzone" id="fileUpload" name="file" type="file" single style="width: 90 %;vertical-align: middle">
+                            </div>
+                            <textarea id="hidden64file" name="hidden64file" hidden></textarea>
+                            <br>
+                            <label for="fname">Descripción</label>
+                            <input type="text" id="desc" name="desc" style="border-color: #ff004c;color:white;background-color:#20253d;border-radius: 3px;width:97%;margin-top:1em;"><br><br>
+                            <button type="submit" class="btn" style="background-color:#ff004c;color:white;">
+                                {{ __('Crear pin') }}
+                            </button>
+                            </form>
                         </div>
-                        <div style="display:inline-block;vertical-align:top;margin-left:1em;">
-                            <h3 style="color:#c261ff;display:inline-block;">{{$searchResult[$i]["name"]}}</h3> <e style="display:inline-block;"> - por {{$searchResult[$i]["username"]}}</e>
-                            <br><i class="fa fa-heart" aria-hidden="true" style="color:#ff004c;"> {{$searchResult[$i]["likes"]}}</i>
-                            <p>{{$searchResult[$i]["bio"]}}</p>
+                </div>
+                <h5>Vista de pin</h5>
+                <div id="emptySelectMap" style="flex-grow: 4;margin-left:1em;">Selecciona o crea un pin en el mapa.</div>
+                <div id="selectedMap" style="flex-grow: 4;margin-left:1em;" hidden>
+                    <div style="display:flex;justify-content:center;">
+                        <img id="imagePin" width="500vw" src="" style="">
+                    </div>
+                    <div style="display:flex;justify-content:center;margin-top:1em;">
+                        <i id="imageDesc"></i>
+                    </div>
+                    <div style="display:flex;justify-content:center;margin-top:0.4em;">
+                        <a id="imageUser"><a>
+                    </div>
+                    <input type="text" id="hiddenPinIndex" name="hiddenPinIndex" hidden/>
+                    <div style="display:flex;justify-content:center;margin-top:0.4em;">
+                    <div class="rate">
+                            <input type="radio" id="star5" onclick="rate(5)" name="rate" value="5" />
+                            <label for="star5" title="text">5 stars</label>
+                            <input type="radio" id="star4" onclick="rate(4)" name="rate" value="4" />
+                            <label for="star4" title="text">4 stars</label>
+                            <input type="radio" id="star3" onclick="rate(3)"name="rate" value="3" />
+                            <label for="star3" title="text">3 stars</label>
+                            <input type="radio" id="star2" onclick="rate(2)" name="rate" value="2" />
+                            <label for="star2" title="text">2 stars</label>
+                            <input type="radio" id="star1" onclick="rate(1)" name="rate" value="1" />
+                            <label for="star1" title="text">1 star</label>
                         </div>
                     </div>
-                @endfor
-            @else
-                <p>La busqueda no ha arrojado ningún resultado</p>
-            @endif
+                </div>
+            </div>
+            <br>
+        </div>
         </div>
         </div>
     </div>
-    <script>    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.2/dropzone.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7.2/min/dropzone.min.js"></script>
+    <script>
+    //LEAFTLET map
+    var map = L.map('mapid').setView([51.505, -0.09], 13);
+    var pins = {!! json_encode($pins) !!};
+    console.log(pins);
+    var onMarkerClick = function(e){
+        var index=this.options.customId;
+        document.getElementById("emptySelectMap").hidden=true;
+        document.getElementById("imagePin").src="../uploads/"+pins[index]["file"];
+        document.getElementById("imageDesc").innerHTML='"'+pins[index]["desc"]+'"';
+        document.getElementById("imageUser").innerHTML=pins[index]["username"];
+        document.getElementById("imageUser").href="user/"+pins[index]["username"];
+        document.getElementById("hiddenPinIndex").value=index;
+        document.getElementById("selectedMap").hidden=false;
+    }
+    for(var i=0;i<pins.length;i++){
+        var index=i;
+        console.log(i);
+        L.marker([pins[i]["latitud"], pins[i]["longitud"]],{customId: i}).addTo(map).on('click', onMarkerClick);
+    }
+    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+    }).addTo(map);
+    map.panTo(new L.LatLng(40.4165, -3.70256));
+    map.setZoom(6);
+    map.addEventListener('click', function(ev) {
+        lat = ev.latlng.lat;
+        lng = ev.latlng.lng;
+        console.log(lat+"  -  "+lng);
+        document.getElementById('latitud').value=lat;
+        document.getElementById('longitud').value=lng;
+    });
+    function rate(number){
+        var index=document.getElementById("hiddenPinIndex").value;
+        axios.post("/rate",{rate:number, index:index}).then(() => {
+        });
+    }
+    function createPin(){
+        if(document.getElementById("crearPin").hidden==false){
+            document.getElementById("crearPin").hidden=true;
+        }else{
+            document.getElementById("crearPin").hidden=false;
+        }
+    }
+    function updatePing(){
+        for(var i=0;i<pins.length;i++){
+            console.log(i);
+            var index=i;
+            L.marker([pins[i]["latitud"], pins[i]["longitud"]]).addTo(map).on('click', function(e) {
+                document.getElementById("emptySelectMap").hidden=true;
+                document.getElementById("imagePin").src="../uploads/"+pins[index]["file"];
+                document.getElementById("selectedMap").hidden=false;
+            });
+        }
+    }
+
     var uploadFileInput = document.getElementById('fileUpload');
     var nameFile = document.getElementById('nameFile');
         function updateName(){
@@ -91,6 +196,41 @@
     </script>
     </div>
     <style>
+    .rate {
+    float: left;
+    height: 46px;
+    padding: 0 10px;
+    }
+    .rate:not(:checked) > input {
+        position:absolute;
+        top:-9999px;
+    }
+    .rate:not(:checked) > label {
+        float:right;
+        width:1em;
+        overflow:hidden;
+        white-space:nowrap;
+        cursor:pointer;
+        font-size:30px;
+        color:#ccc;
+    }
+    .rate:not(:checked) > label:before {
+        content: '★ ';
+    }
+    .rate > input:checked ~ label {
+        color: #ffc700;    
+    }
+    .rate:not(:checked) > label:hover,
+    .rate:not(:checked) > label:hover ~ label {
+        color: #deb217;  
+    }
+    .rate > input:checked + label:hover,
+    .rate > input:checked + label:hover ~ label,
+    .rate > input:checked ~ label:hover,
+    .rate > input:checked ~ label:hover ~ label,
+    .rate > label:hover ~ input:checked ~ label {
+        color: #c59b08;
+    }
     .resultBox{
         background-color:#20253d;
         width:90%;

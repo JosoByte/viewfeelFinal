@@ -18,12 +18,14 @@ Route::get('/checkuser', 'App\Http\Controllers\Controller@getCurrentUserDisplay'
 Route::get('/upload', 'App\Http\Controllers\Controller@getUploadIndex')->middleware('auth')->name('getUploadIndex');
 Route::get('/user/{username}/{art}', 'App\Http\Controllers\Controller@getArtIndex')->middleware('auth')->name('getArtIndex');
 Route::post('/uploadFile', 'App\Http\Controllers\Controller@uploadFile')->middleware('auth')->name('uploadFile');
+Route::post('/uploadPin', 'App\Http\Controllers\Controller@uploadPin')->middleware('auth')->name('uploadPin');
 Route::post('/sendComment', 'App\Http\Controllers\Controller@sendComment');
 Route::get('/logoff', function () {
     Auth::logout();
     return redirect('/');
 })->name('logoff');
 Auth::routes();
+Route::post('/rate',  'App\Http\Controllers\Controller@rate');
 Route::get('/testLine', 'App\Http\Controllers\Controller@testLine');
 Route::get('/map', 'App\Http\Controllers\Controller@mapIndex')->name('map');
 Route::post('/search', 'App\Http\Controllers\Controller@searchIndex')->name('search');

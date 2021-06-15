@@ -20,7 +20,64 @@ class Controller extends BaseController
         $this->database = app('firebase.database');
     }
     public function mapIndex(){
-        return view('map');
+        $referenceMap=$this->database->getReference('/mapPins/')->getSnapshot()->getValue();
+        return view('map',["pins" => $referenceMap]);
+    }
+    function checkRate(Request $request){
+        if($referenceMapPin!=0){
+            $referenceMapPin=$this->database->getReference('/mapPins/'.$request->index.'/rate')->getSnapshot()->getValue();
+            $extractedValues=[];
+            for($i=0;$i<count($referenceMapPin);$i++){
+                $extractedValues[$i]=$referenceMapPin[$i]["points"];
+            }
+        }else{
+            return 0;
+        }
+    }
+    function rate(Request $request){
+        $referenceMapPin=$this->database->getReference('/mapPins/'.$request->index.'/rate')->getSnapshot()->getValue();
+        if($referenceMapPin==0){
+            $referenceMapPin=$this->database->getReference('/mapPins/'.$request->index.'/rate/0')->set([
+                "points"=>$request->rate,
+                ]);
+        }else{
+            $referenceMapPin2=$this->database->getReference('/mapPins/'.$request->index.'/rate/'.count($referenceMapPin))->set([
+                "points"=>$request->rate,
+                ]);
+        }
+    }
+    public function uploadPin(Request $request){
+        $referenceMap=$this->database->getReference('/mapPins/')->getSnapshot()->getValue();
+        if($referenceMap==""){
+            $data = substr($request->hidden64file, strpos($request->hidden64file, ',') + 1);
+            $file = base64_decode($data); //converts to base64
+            $fileDetails = pathinfo($request->file);
+            $length = 10;
+            $name = substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'),1,$length); //creates a random name for the file so its unique
+            Storage::disk('publicImg')->put($name.".".$fileDetails['extension'], $file);
+            $referenceUploadPin=$this->database->getReference('/mapPins/0')->set([
+                "latitud"=>$request->latitud,
+                "longitud"=>$request->longitud,
+                "file"=>$name,
+                "desc"=>$request->desc,
+                "rate"=>0,
+            ]);
+        }
+        if($referenceMap!=""){
+            $data = substr($request->hidden64file, strpos($request->hidden64file, ',') + 1);
+            $file = base64_decode($data); //converts to base64
+            $fileDetails = pathinfo($request->file);
+            $length = 10;
+            $name = substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'),1,$length); //creates a random name for the file so its unique
+            Storage::disk('publicImg')->put($name.".".$fileDetails['extension'], $file);
+            $referenceUploadPin=$this->database->getReference('/mapPins/'.count($referenceMap))->set([
+                "latitud"=>$request->latitud,
+                "longitud"=>$request->longitud,
+                "file"=>$name.".".$fileDetails['extension'],
+                "desc"=>$request->desc,
+                "username"=>$this->getCurrentUserDisplay(),
+            ]);
+        }
     }
     public function getWelcomeIndex(){
         $referenceUsers =  array_values($this->database->getReference('/users/')->getSnapshot()->getValue());
