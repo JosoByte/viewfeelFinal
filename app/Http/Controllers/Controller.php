@@ -24,14 +24,33 @@ class Controller extends BaseController
         return view('map',["pins" => $referenceMap]);
     }
     function checkRate(Request $request){
+        $referenceMapPin=$this->database->getReference('/mapPins/'.$request->index.'/rate')->getSnapshot()->getValue();
         if($referenceMapPin!=0){
-            $referenceMapPin=$this->database->getReference('/mapPins/'.$request->index.'/rate')->getSnapshot()->getValue();
             $extractedValues=[];
             for($i=0;$i<count($referenceMapPin);$i++){
                 $extractedValues[$i]=$referenceMapPin[$i]["points"];
             }
+            return $this->getMedian($extractedValues);
         }else{
             return 0;
+        }
+    }
+    function getMedian($arr) {
+        if(!is_array($arr)){
+            throw new Exception('$arr must be an array!');
+        }
+        if(empty($arr)){
+            return false;
+        }
+        $num = count($arr);
+        $middleVal = floor(($num - 1) / 2);
+        if($num % 2) { 
+            return $arr[$middleVal];
+        } 
+        else {
+            $lowMid = $arr[$middleVal];
+            $highMid = $arr[$middleVal + 1];
+            return (($lowMid + $highMid) / 2);
         }
     }
     function rate(Request $request){
@@ -127,6 +146,27 @@ class Controller extends BaseController
             }
         }
         return view('search', ["currentUsername"=> $this->getCurrentUserDisplay(), "username"=>$this->getCurrentUserDisplay(), "searchResult" => $searchResult]);
+    }
+    public function contactoIndex(){
+        return view("contacto");
+    }
+    public function contactEmail(Request $request){
+        $to= explode("@", $request->email, 2);
+        $to_name = $to[0];
+        $to_email = $request->email;
+        $data = array('name'=>$to[0], "body" => "¡Tu consulta ha llegado a nosotros!, por favor, espere a una respuesta.\n Su consulta:\n ".$request->consulta);
+        Mail::send('emails.mailContacto', $data, function($message) use ($to_name, $to_email) {
+            $message->to($to_email, $to_name)->subject('Su consulta de Viewfeel');
+            $message->from('viewfeel0@gmail.com','Su consulta de Viewfeel');
+        });
+        $to_name = "viewfeel";
+        $to_email = "viewfeel0@gmail.com";
+        $data = array('name'=>$to_name, "body" => "Hay una nueva consulta de ".$request->email.". La consulta:\n ".$request->consulta);
+        Mail::send('emails.mailContacto', $data, function($message) use ($to_name, $to_email) {
+            $message->to($to_email, $to_name)->subject('Nueva consulta en Viewfeel');
+            $message->from('viewfeel0@gmail.com','Nueva consulta en Viewfeel');
+        });
+        return view("welcome");
     }
     public function confirmMail($user,$token){
         $referenceConfirm = $this->database->getReference('/users/'.$user);

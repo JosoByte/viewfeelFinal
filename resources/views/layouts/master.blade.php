@@ -21,7 +21,7 @@
                 </li>
                 @auth
                 <li class="nav-item">
-                <a class="nav-link" href="/" style="display:inline-block;text-decoration: none;color:white;margin-left:1em;font-size:1.5em">Mapa</a>
+                <a class="nav-link" href="/map" style="display:inline-block;text-decoration: none;color:white;margin-left:1em;font-size:1.5em">Mapa</a>
                 </li>
                 <li class="nav-item">
                 <a class="nav-link" id="profileLink" href="/" style="display:inline-block;text-decoration: none;color:white;margin-left:1em;font-size:1.5em">Mi Perfil</a>
@@ -30,6 +30,9 @@
                 <a class="nav-link" href="/upload" style="display:inline-block;text-decoration: none;color:white;margin-left:1em;font-size:1.5em">Subir arte</a>
                 </li>
                 @endauth
+                <li class="nav-item">
+                <a class="nav-link" href="/contacto" style="display:inline-block;text-decoration: none;color:white;margin-left:1em;font-size:1.5em">Contacto</a>
+                </li>
                 </ul>&nbsp;
                 <form method="POST" action="{{ route('search') }}">
                 @csrf

@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', 'App\Http\Controllers\Controller@getWelcomeIndex')->middleware('confirmed')->name('welcome');
+Route::get('/contacto', 'App\Http\Controllers\Controller@contactoIndex')->name('contacto');
 Route::get('/checkuser', 'App\Http\Controllers\Controller@getCurrentUserDisplay')->name('getCurrentUserDisplay');
 Route::get('/upload', 'App\Http\Controllers\Controller@getUploadIndex')->middleware('auth')->name('getUploadIndex');
 Route::get('/user/{username}/{art}', 'App\Http\Controllers\Controller@getArtIndex')->middleware('auth')->name('getArtIndex');
@@ -25,6 +26,8 @@ Route::get('/logoff', function () {
     return redirect('/');
 })->name('logoff');
 Auth::routes();
+Route::post('/contactEmail', 'App\Http\Controllers\Controller@contactEmail')->name("contactEmail");
+Route::get('/checkRate', 'App\Http\Controllers\Controller@checkRate');
 Route::post('/rate',  'App\Http\Controllers\Controller@rate');
 Route::get('/testLine', 'App\Http\Controllers\Controller@testLine');
 Route::get('/map', 'App\Http\Controllers\Controller@mapIndex')->name('map');
