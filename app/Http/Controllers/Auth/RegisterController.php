@@ -78,7 +78,7 @@ class RegisterController extends Controller
     public function sendConfirmationEmail($email,$token,$user){
       $to_name = $user;
       $to_email = $email;
-      $data = array('name'=>$user, "body" => "Este es tu enlace para activar tu cuenta en ViewFeel: ","link"=>"http://ec2-3-141-193-16.us-east-2.compute.amazonaws.com:8000/confirmMail/".$user."/".$token);
+      $data = array('name'=>$user, "body" => "Este es tu enlace para activar tu cuenta en ViewFeel: ","link"=>"http://178.62.95.20/confirmMail/".$user."/".$token);
       Mail::send('emails.mail', $data, function($message) use ($to_name, $to_email) {
           $message->to($to_email, $to_name)->subject('Laravel ');
           $message->from('viewfeel0@gmail.com','Email de confirmación');

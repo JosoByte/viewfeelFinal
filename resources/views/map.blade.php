@@ -95,9 +95,6 @@
         document.getElementById("hiddenPinIndex").value=index;
         axios.get("/checkRate",{params:{index:index}}).then(function(response) {
             var rate=Math.round(response.data);
-            /* for(var i=1;i<=rate;i++){
-
-            } */
             radiobtn = document.getElementById("star"+rate).checked = true;
         });
         document.getElementById("selectedMap").hidden=false;

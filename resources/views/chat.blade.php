@@ -1,7 +1,6 @@
 <body id="body" style="background-color:#20253d;color:white;height:100%;">
     <div id="messages">
-        <p>test</p>
-        <p>test</p>
+        <p></p>
     </div>
 </body>
 <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
