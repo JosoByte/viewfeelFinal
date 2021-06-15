@@ -22,9 +22,11 @@
                 <h2 style="color:#c261ff">{{$nameArt}}</h2>
                 <h5>{{$creatorUsername}}</h5>
                 <b>Nivel {{$creatorLevel}}</b>
+                
             </div>
             <div style="display:inline-block;float:right;margin-top:5em;margin-right:1em;">
-                <button class="btn btn-danger" onclick="updateLikes({{$likes}},'{{$creatorUsername}}',{{$artIndex}})"><i class="fa fa-heart" aria-hidden="true"></i> Me gusta</button>
+                <button class="btn btn-danger" id="likeButton" onclick="giveLike({{$likes}},'{{$creatorUsername}}',{{$artIndex}})" hidden><i class="fa fa-heart" id="likeButtonText" aria-hidden="true"></i> Me gusta</button>
+                <button class="btn btn-danger" id="unlikeButton" onclick="removeLike({{$likes}},'{{$creatorUsername}}',{{$artIndex}})" hidden><i class="fa fa-heart" id="likeButtonText" aria-hidden="true"></i> No me gusta</button>
                 <p id="likesCount">Me gusta: {{$likes}}</p>
             </div>
         </div>
@@ -56,15 +58,37 @@
     function setTitle(title){
         document.title=title;
     }
+    var art = {!! json_encode($filename) !!};
+    checkLikes();
+    function checkLikes(){
+        console.log("a");
+        axios.get("/checkIfLike",{params:{art:art}}).then(function(response) {
+            console.log(response.data);
+            if(response.data==0){
+                document.getElementById("unlikeButton").hidden=true;
+                document.getElementById("likeButton").hidden=false;
+            }else{
+                document.getElementById("likeButton").hidden=true;
+                document.getElementById("unlikeButton").hidden=false;
+            }
+        });
+    }
     function sendComment(commenter,username,artIndex){
         commentText=document.getElementById("commentText").value
         axios.post("/sendComment",{commenter:commenter, username:username, artIndex:artIndex, commentText:commentText}).then(() => {
             location.reload();
         });
     }
-    function updateLikes(likes,username,artIndex){
+    function giveLike(likes,username,artIndex){
+        console.log(likes);
         document.getElementById("likesCount").innerHTML="Me gusta: "+(likes+1);
         axios.post("/updateLikes/"+username+"/"+artIndex)
+        checkLikes();
+    }
+    function removeLike(likes,username,artIndex){
+        document.getElementById("likesCount").innerHTML="Me gusta: "+(likes-1);
+        axios.post("/removeLike/"+username+"/"+artIndex)
+        checkLikes();
     }
     var uploadImageInput = document.getElementById('imageProfile');
     uploadImageInput.addEventListener('change', () =>{

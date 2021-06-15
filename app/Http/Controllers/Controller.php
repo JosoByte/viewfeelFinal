@@ -150,6 +150,9 @@ class Controller extends BaseController
     public function contactoIndex(){
         return view("contacto");
     }
+    public function chatIndex(){
+        return view("chat");
+    }
     public function contactEmail(Request $request){
         $to= explode("@", $request->email, 2);
         $to_name = $to[0];
@@ -167,6 +170,17 @@ class Controller extends BaseController
             $message->from('viewfeel0@gmail.com','Nueva consulta en Viewfeel');
         });
         return view("welcome");
+    }
+    public function checkIfLike(Request $request){
+        $referenceGivenLikes = $this->database->getReference('/users/'.$this->getCurrentUserDisplay().'/givenLikes')->getSnapshot()->getValue();
+        if($referenceGivenLikes!=""){
+            if (in_array($request->art, $referenceGivenLikes)) {
+                return 1;
+            }
+            return 0;
+        }else{
+            return 0;
+        }
     }
     public function confirmMail($user,$token){
         $referenceConfirm = $this->database->getReference('/users/'.$user);
@@ -212,6 +226,22 @@ class Controller extends BaseController
     }
     public function testLine(){
         dd($this->database->getReference('/recentLikes')->getSnapshot()->getValue());
+    }
+    public function removeLike($username, $artIndex){
+        $referenceUser = $this->database->getReference('/users/'.$username."/gallery/".$artIndex);
+        $snapshotArt = $referenceUser->getSnapshot()->getValue();
+        $referenceLikeUser = $this->database->getReference('/users/'.$this->getCurrentUserDisplay()."/givenLikes/");
+        $snapshotLikes=$referenceLikeUser->getSnapshot()->getValue();
+        $artName=$snapshotArt["fileData"];
+        $arrayIndexLikes=array_search($artName, $snapshotLikes);
+        unset($snapshotLikes[$arrayIndexLikes]);
+        $referenceNewLikeUser = $this->database->getReference('/users/'.$this->getCurrentUserDisplay())->update([
+            "givenLikes" => [$snapshotLikes],
+        ]);
+        $snapshotArtLikes=$snapshotArt["likes"]-1;
+        $referenceNewLikeArt = $this->database->getReference('/users/'.$username."/gallery/".$artIndex)->update([
+            "likes" => $snapshotArtLikes,
+        ]);
     }
     public function updateLikes($username,$artIndex){
         $referenceUser = $this->database->getReference('/users/'.$username."/gallery/".$artIndex);

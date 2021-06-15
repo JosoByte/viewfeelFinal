@@ -49,6 +49,24 @@
                     <a href="{{ route('logoff') }}">
                         <button class="btn btn-danger" style="margin-left:1em;">Salir</button>
                     </a>
+                    <!-- chat -->
+                    <div style="position:fixed; bottom: 10; right:10;">
+                        <div id="chatFrame" hidden>
+                            <div style="background-color:#ff004c;margin-top:5em;padding:0.4em">
+                            <div style="display:flex;justify-content:right;margin-bottom:0.2em;">
+                                <e>ViewFeel Chat&nbsp;&nbsp;</e>
+                                <button type="button" id="chatButtonClose"  href="#" onclick="hideChat()" class="btn" style="background-color:#20253d;border-radius:0px;color:white;font-size:0.9em;padding-right:1.5em;padding-left:1.5em;padding-top:0;height:1.5em;">X</button><br>
+                            </div>
+                                <div id="chatFrameI"  style="margin-right:10%;margin-bottom:1vh;">
+                                    <iframe src="/chat"  height="400em" width="300vw" title="description"></iframe>
+                                </div>
+                                <input type="text" id="chatTextInput" name="chatTextInput" class="" placeholder="Escribe..." aria-label="" aria-describedby="basic-addon1" style="border-color: #ff004c;color:white;background-color:#20253d;border-radius: 3px;width:100%;margin-top:1em;">
+                            </div>
+                        </div>
+                        <div id="chatButton">
+                            <button type="button" id=""  href="#" onclick="openChat()" class="btn" style="background-color:#ff004c;border-radius:0px;color:white;font-size:1.3em;padding-right:2em;padding-left:2em;">Abrir chat</button><br>
+                        </div>
+                    </div>
                 @endauth
             </div>
 </nav>
@@ -59,6 +77,14 @@
         </div>
     </body>
     <script>
+        function hideChat(){
+            document.getElementById('chatFrame').hidden=true;
+            document.getElementById('chatButton').hidden=false;
+        }
+        function openChat(){
+            document.getElementById('chatFrame').hidden=false;
+            document.getElementById('chatButton').hidden=true;
+        }
             document.getElementById('loginName').innerHTML="Eres "+document.getElementById('hiddenNameCurrent').innerHTML;
             document.getElementById('profileLink').href="/user/"+document.getElementById('hiddenNameCurrent').innerHTML;
         </script>
